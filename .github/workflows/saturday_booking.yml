@@ -43,11 +43,30 @@ jobs:
         script: |
           const fs = require('fs');
           const status = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
-          const success = status.includes("Successfully booked both");
+          
+          // Determine the title based on the status content
+          let title = '';
+          if (status.includes("Successfully booked both")) {
+            title = '🎯 Successfully Booked Both Tuesday and Thursday Slots';
+          } else if (status.includes("slots might not be opened yet")) {
+            title = '⏳ Slots Not Yet Opened - Will Try Again Next Run';
+          } else if (status.includes("Partial booking success")) {
+            title = '⚠️ Partial Success - Only One Slot Booked';
+          } else if (status.includes("slot is fully booked")) {
+            title = '❌ Slots Already Full';
+          } else {
+            title = '❌ Booking Failed - Check Details';
+          }
+
+          // Add timestamp to title
+          const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+          title += ` (${timestamp})`;
+          
           github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: success ? '🎯 Court Booking Successful' : '❌ Court Booking Issues',
-            body: status,
-            labels: [success ? 'success' : 'failure']
+            title: title,
+            body: `Running Time: ${timestamp}\n\nDetails:\n${status}`,
+            labels: [status.includes("Successfully booked both") ? 'success' : 'failure']
           });
+
