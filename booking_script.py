@@ -70,8 +70,8 @@ def book_courts():
     booking_status = [f"Booking attempt started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"]
     
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
-    username = os.environ.get('BOOKING_USERNAME')  # Corrected
-    password = os.environ.get('PASSWORD')          # Corrected
+    username = os.environ.get('BOOKING_USERNAME')
+    password = os.environ.get('PASSWORD')     
 
     if not username or not password:
         error_msg = "Missing credentials"
@@ -117,7 +117,7 @@ def book_courts():
         # Go back to calendar and book Thursday (4 clicks)
         if tuesday_success:
             driver.get(url)  # Refresh to calendar
-            time.sleep(2)
+            time.sleep(4)
             thursday_success, thursday_msg = navigate_and_book(driver, "Thursday", 4, booking_status)
             
             if tuesday_success and thursday_success:
