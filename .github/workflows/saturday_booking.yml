@@ -2,7 +2,11 @@ name: Saturday Court Booking
 
 on:
   schedule:
-    - cron: '50 9 * * 6'  # Runs at 9:50 AM every Saturday
+    - cron: '45 9 * * 6'  # 9:45 AM Saturday
+    - cron: '50 9 * * 6'  # 9:50 AM Saturday
+    - cron: '55 9 * * 6'  # 9:55 AM Saturday
+    - cron: '0 10 * * 6'  # 10:00 AM Saturday
+    - cron: '5 10 * * 6'  # 10:05 AM Saturday
   workflow_dispatch:  # Allows manual triggering for testing
 
 permissions:
