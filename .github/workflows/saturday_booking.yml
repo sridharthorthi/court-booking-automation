@@ -8,6 +8,11 @@ on:
     - cron: '55 02 * * 6'  # 9:55 AM Saturday
     - cron: '0 03 * * 6'  # 10:00 AM Saturday
     - cron: '5 03 * * 6'  # 10:05 AM Saturday
+    - cron: '45 17 * * 6'  # 9:45 AM PST Saturday
+    - cron: '50 17 * * 6'  # 9:50 AM PST Saturday
+    - cron: '55 17 * * 6'  # 9:55 AM PST Saturday
+    - cron: '00 18 * * 6'  # 10:00 AM PST Saturday
+    - cron: '05 18 * * 6'  # 10:05 AM PST Saturday
   workflow_dispatch:  # Allows manual triggering for testing
 
 permissions:
