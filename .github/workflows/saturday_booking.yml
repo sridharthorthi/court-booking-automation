@@ -19,6 +19,7 @@ on:
     - cron: '00 17 * * 6'  # 10:00 AM PDT Saturday
     - cron: '05 17 * * 6'  # 10:05 AM PDT Saturday
     - cron: '15 17 * * 6'  # 10:05 AM PDT Saturday
+    - cron: '20 18 * * 6'  # 10:05 AM PDT Saturday
   workflow_dispatch:  # Allows manual triggering for testing
 
 permissions:
