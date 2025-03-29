@@ -10,8 +10,8 @@ import time
 
 def test_access():
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
-    username = os.environ.getBOOKING_USERNAME')
-    password = os.environ.getPASSWORD')
+    username = os.environ.get('BOOKING_USERNAME')
+    password = os.environ.get('PASSWORD')
 
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
