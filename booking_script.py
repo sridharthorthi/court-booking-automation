@@ -9,6 +9,24 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 from datetime import datetime
 
+def get_clicks_needed(target_day):
+    current_day = datetime.now().strftime('%A')
+    
+    # Map days to numbers (0-6)
+    days = {
+        'Monday': 0, 'Tuesday': 1, 'Wednesday': 2,
+        'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6
+    }
+    
+    current_num = days[current_day]
+    target_num = days[target_day]
+    
+    # Calculate clicks needed considering week wrap-around
+    clicks = (target_num - current_num) % 7
+    
+    print(f"Running on {current_day}, targeting {target_day}, needs {clicks} clicks")
+    return clicks
+
 def navigate_and_book(driver, day_name, clicks_needed, booking_status):
     print(f"Navigating to {day_name}...")
     booking_status.append(f"\nAttempting booking for {day_name}:")
@@ -71,7 +89,7 @@ def book_courts():
     
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
     username = os.environ.get('BOOKING_USERNAME')
-    password = os.environ.get('PASSWORD')     
+    password = os.environ.get('PASSWORD')
 
     if not username or not password:
         error_msg = "Missing credentials"
@@ -111,14 +129,18 @@ def book_courts():
         reserve_button = driver.find_element(By.XPATH, "//a[contains(@href, 'calendar.cfm')]")
         reserve_button.click()
         
-        # Book Tuesday (2 clicks)
-        tuesday_success, tuesday_msg = navigate_and_book(driver, "Tuesday", 2, booking_status)
+        # Calculate clicks needed for each day
+        tuesday_clicks = get_clicks_needed('Tuesday')
+        thursday_clicks = get_clicks_needed('Thursday')
         
-        # Go back to calendar and book Thursday (4 clicks)
+        # Book Tuesday
+        tuesday_success, tuesday_msg = navigate_and_book(driver, "Tuesday", tuesday_clicks, booking_status)
+        
+        # Go back to calendar and book Thursday
         if tuesday_success:
             driver.get(url)  # Refresh to calendar
-            time.sleep(4)
-            thursday_success, thursday_msg = navigate_and_book(driver, "Thursday", 4, booking_status)
+            time.sleep(2)
+            thursday_success, thursday_msg = navigate_and_book(driver, "Thursday", thursday_clicks, booking_status)
             
             if tuesday_success and thursday_success:
                 final_msg = "Successfully booked both Tuesday and Thursday slots!"
