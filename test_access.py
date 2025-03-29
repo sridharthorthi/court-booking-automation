@@ -12,8 +12,8 @@ def test_access():
     print("Starting script...")
     
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
-    username = os.environ.get('BOOKING_USERNAME')  
-    password = os.environ.get('PASSWORD')          
+    username = os.environ.get('BOOKING_USERNAME')
+    password = os.environ.get('PASSWORD')
 
     print(f"Credentials check - Username exists: {'Yes' if username else 'No'}")
     print(f"Credentials check - Password exists: {'Yes' if password else 'No'}")
@@ -62,25 +62,57 @@ def test_access():
         # Wait for calendar to load
         time.sleep(2)
         
-        # Click next to go to Saturday
+        # Click next twice to go to Sunday
         print("Looking for next day button...")
         next_button = driver.find_element(By.XPATH, "//i[@class='icon-chevron-right']")
         next_button.click()
-        print("Moved to next day")
+        print("Moved to Saturday")
+        time.sleep(1)
+        next_button = driver.find_element(By.XPATH, "//i[@class='icon-chevron-right']")
+        next_button.click()
+        print("Moved to Sunday")
         
         # Wait for page to update
         time.sleep(2)
         
-        # Look for 5:00 PM slot
+        # Look for 5:00 PM slot and click Reserve
         print("Searching for 5:00 PM slot...")
         try:
             slot = driver.find_element(By.XPATH, "//div[contains(@class, 'calendar-custom-color-2bff00') and contains(text(), '5:00 PM')]")
             print("Found 5:00 PM slot!")
-            print("Slot text:", slot.text)
-            print("Slot class:", slot.get_attribute('class'))
+            slot.click()
+            print("Clicked on 5:00 PM slot")
+            
+            # Wait for reserve button and click it
+            time.sleep(2)
+            reserve_button = driver.find_element(By.XPATH, "//a[contains(@class, 'btn-primary') and contains(@id, 'reserve_')]")
+            reserve_button.click()
+            print("Clicked Reserve button")
+
+            # Wait for confirmation page
+            time.sleep(3)
+            
+            # Check for success (looking for text that indicates successful booking)
+            try:
+                success_indicator = driver.find_element(By.XPATH, "//*[contains(text(), 'is registered for this class')]")
+                print("Booking Successful! Found confirmation message.")
+                print("Confirmation text:", success_indicator.text)
+            except:
+                # Check if there's an error message
+                try:
+                    error_message = driver.find_element(By.XPATH, "//*[contains(@class, 'error-message')]")
+                    print("Booking Failed. Error message:", error_message.text)
+                except:
+                    print("Couldn't find success or error message. Please verify manually.")
+                    print("Current URL:", driver.current_url)
+                    print("Page content:", driver.page_source[:500])
+                
         except Exception as e:
             print("5:00 PM slot not found or not available")
-            
+            print(f"Error: {str(e)}")
+            if driver:
+                print("Current URL:", driver.current_url)
+                
     except Exception as e:
         print(f"\nError occurred: {str(e)}")
         if driver:
