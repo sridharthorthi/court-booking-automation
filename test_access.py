@@ -11,12 +11,19 @@ import time
 def test_access():
     # Hardcoded URL since it's fixed
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
+    
+    # Get and check environment variables
     username = os.environ.get('BOOKING_USERNAME')
     password = os.environ.get('BOOKING_PASSWORD')
 
-    print("Starting test...")
-    print(f"Username available: {'Yes' if username else 'No'}")
-    print(f"Password available: {'Yes' if password else 'No'}")
+    # Debug environment variables
+    print("\nEnvironment Variables Check:")
+    print("All environment variables:", os.environ.keys())
+    print(f"Username value: {username}")
+    print(f"Password exists: {'Yes' if password else 'No'}")
+
+    if not password:
+        raise Exception("Password not found in environment variables!")
 
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
