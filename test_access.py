@@ -21,7 +21,11 @@ def test_access():
     booking_status.append(f"Script started at: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     if not username or not password:
-        raise Exception("Missing credentials")
+        error_msg = "Missing credentials"
+        booking_status.append(error_msg)
+        with open(os.environ.get('GITHUB_STEP_SUMMARY', 'booking_status.txt'), 'w') as f:
+            f.write('\n'.join(booking_status))
+        raise Exception(error_msg)
 
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
