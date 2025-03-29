@@ -14,7 +14,7 @@ def test_access():
     
     # Get and check environment variables
     username = os.environ.get('BOOKING_USERNAME')
-    password = os.environ.get('BOOKING_PASSWORD')
+    password = os.environ.get('PASSWORD')
 
     # Debug environment variables
     print("\nEnvironment Variables Check:")
