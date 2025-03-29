@@ -9,21 +9,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 def test_access():
-    # Hardcoded URL since it's fixed
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
-    
-    # Get and check environment variables
-    username = os.environ.get('BOOKING_USERNAME')
-    password = os.environ.get('PASSWORD')
-
-    # Debug environment variables
-    print("\nEnvironment Variables Check:")
-    print("All environment variables:", os.environ.keys())
-    print(f"Username value: {username}")
-    print(f"Password exists: {'Yes' if password else 'No'}")
-
-    if not password:
-        raise Exception("Password not found in environment variables!")
+    username = os.environ.getBOOKING_USERNAME')
+    password = os.environ.getPASSWORD')
 
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
@@ -35,26 +23,50 @@ def test_access():
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        print("\nBrowser initialized")
+        print("Browser initialized")
         
+        # Login
         driver.get(url)
-        print(f"Accessed login page: {driver.title}")
-        
         username_field = driver.find_element(By.ID, "idUsername")
         username_field.send_keys(username)
-        print("Username entered")
-        
         password_field = driver.find_element(By.ID, "idPassword")
         password_field.send_keys(password)
-        print("Password entered")
-        
         login_button = driver.find_element(By.XPATH, "//input[@type='SUBMIT'][@value='Log In']")
         login_button.click()
-        print("Login button clicked")
+        print("Logged in successfully")
         
-        time.sleep(3)
-        print(f"Current URL after login attempt: {driver.current_url}")
+        # Navigate to Reservations
+        time.sleep(2)
+        reservations_link = driver.find_element(By.XPATH, "//a[contains(@href, 'person-calendar.cfm')]")
+        reservations_link.click()
+        print("Clicked Reservations")
         
+        # Click Reserve button
+        time.sleep(2)
+        reserve_button = driver.find_element(By.XPATH, "//a[contains(@href, 'calendar.cfm')]")
+        reserve_button.click()
+        print("Clicked Reserve")
+        
+        # Wait for calendar to load
+        time.sleep(2)
+        
+        # Click next to go to Saturday
+        next_button = driver.find_element(By.XPATH, "//i[@class='icon-chevron-right']")
+        next_button.click()
+        print("Moved to next day")
+        
+        # Wait for page to update
+        time.sleep(2)
+        
+        # Look for 5:00 PM slot
+        try:
+            slot = driver.find_element(By.XPATH, "//div[contains(@class, 'calendar-custom-color-2bff00') and contains(text(), '5:00 PM')]")
+            print("Found 5:00 PM slot!")
+            print("Slot text:", slot.text)
+            print("Slot class:", slot.get_attribute('class'))
+        except Exception as e:
+            print("5:00 PM slot not found or not available")
+            
     except Exception as e:
         print(f"\nError occurred: {str(e)}")
     finally:
