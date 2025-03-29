@@ -13,8 +13,8 @@ def test_access():
     booking_status = []  # List to collect all status messages
     
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
-    username = **************('BOOKING_USERNAME')
-    password = **************('PASSWORD')
+    username = os.environ.get('BOOKING_USERNAME')
+    password = os.environ.get('PASSWORD')
 
     print(f"Credentials check - Username exists: {'Yes' if username else 'No'}")
     print(f"Credentials check - Password exists: {'Yes' if password else 'No'}")
