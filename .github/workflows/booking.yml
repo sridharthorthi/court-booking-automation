@@ -1,0 +1,31 @@
+name: Test Booking
+
+on:
+  # Schedule for later
+  # schedule:
+  #   - cron: '0 8 * * *'
+  
+  # This allows manual testing
+  workflow_dispatch:
+
+jobs:
+  test-booking:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        pip install selenium webdriver-manager
+        
+    - name: Run booking script
+      env:
+        BOOKING_URL: ${{ secrets.BOOKING_URL }}
+        BOOKING_USERNAME: ${{ secrets.BOOKING_USERNAME }}
+        BOOKING_PASSWORD: ${{ secrets.BOOKING_PASSWORD }}
+      run: python test_access.py
