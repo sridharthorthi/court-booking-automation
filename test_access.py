@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 def test_access():
-    # Get secrets from environment variables
+    # Hardcoded URL since it's fixed
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
     username = os.environ.get('BOOKING_USERNAME')
     password = os.environ.get('BOOKING_PASSWORD')
@@ -30,33 +30,23 @@ def test_access():
         driver = webdriver.Chrome(service=service, options=chrome_options)
         print("\nBrowser initialized")
         
-        # Access login page
         driver.get(url)
         print(f"Accessed login page: {driver.title}")
         
-        # Find and fill email field
-        email_field = driver.find_element(By.NAME, "email address")
-        email_field.send_keys(username)
+        username_field = driver.find_element(By.ID, "idUsername")
+        username_field.send_keys(username)
+        print("Username entered")
         
-        # Find and fill password field
-        password_field = driver.find_element(By.NAME, "password")
+        password_field = driver.find_element(By.ID, "idPassword")
         password_field.send_keys(password)
+        print("Password entered")
         
-        # Click login button
-        login_button = driver.find_element(By.XPATH, "//button[contains(text(), 'Log In')]")
+        login_button = driver.find_element(By.XPATH, "//input[@type='SUBMIT'][@value='Log In']")
         login_button.click()
+        print("Login button clicked")
         
-        # Wait for login to complete
         time.sleep(3)
-        
-        # Check if login was successful
         print(f"Current URL after login attempt: {driver.current_url}")
-        print("Checking if login was successful...")
-        
-        if "login.cfm" not in driver.current_url:
-            print("Login successful!")
-        else:
-            print("Login may have failed - still on login page")
         
     except Exception as e:
         print(f"\nError occurred: {str(e)}")
