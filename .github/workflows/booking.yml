@@ -31,7 +31,7 @@ jobs:
       env:
         BOOKING_URL: ${{ secrets.BOOKING_URL }}
         BOOKING_USERNAME: ${{ secrets.BOOKING_USERNAME }}
-        PASSWORD: ${{ secrets.BOOKING_PASSWORD }}      # Changed to match your secret name
+        PASSWORD: ${{ secrets.BOOKING_PASSWORD }}      
       run: python test_access.py
 
     - name: Create Issue on Failure
