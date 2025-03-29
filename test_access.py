@@ -10,13 +10,15 @@ import time
 
 def test_access():
     print("Starting script...")
+    booking_status = []  # List to collect all status messages
     
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
-    username = os.environ.get('BOOKING_USERNAME')
-    password = os.environ.get('PASSWORD')
+    username = **************('BOOKING_USERNAME')
+    password = **************('PASSWORD')
 
     print(f"Credentials check - Username exists: {'Yes' if username else 'No'}")
     print(f"Credentials check - Password exists: {'Yes' if password else 'No'}")
+    booking_status.append(f"Script started at: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     if not username or not password:
         raise Exception("Missing credentials")
@@ -44,6 +46,7 @@ def test_access():
         login_button = driver.find_element(By.XPATH, "//input[@type='SUBMIT'][@value='Log In']")
         login_button.click()
         print("Logged in successfully")
+        booking_status.append("Login successful")
         
         # Navigate to Reservations
         time.sleep(2)
@@ -51,6 +54,7 @@ def test_access():
         reservations_link = driver.find_element(By.XPATH, "//a[contains(@href, 'person-calendar.cfm')]")
         reservations_link.click()
         print("Clicked Reservations")
+        booking_status.append("Navigated to Reservations")
         
         # Click Reserve button
         time.sleep(2)
@@ -71,6 +75,7 @@ def test_access():
         next_button = driver.find_element(By.XPATH, "//i[@class='icon-chevron-right']")
         next_button.click()
         print("Moved to Sunday")
+        booking_status.append("Navigated to Sunday")
         
         # Wait for page to update
         time.sleep(2)
@@ -82,6 +87,7 @@ def test_access():
             print("Found 5:00 PM slot!")
             slot.click()
             print("Clicked on 5:00 PM slot")
+            booking_status.append("Found and clicked 5:00 PM slot")
             
             # Wait for reserve button and click it
             time.sleep(2)
@@ -92,35 +98,40 @@ def test_access():
             # Wait for confirmation page
             time.sleep(3)
             
-            # Check for success (looking for text that indicates successful booking)
+            # Check for success
             try:
                 success_indicator = driver.find_element(By.XPATH, "//*[contains(text(), 'is registered for this class')]")
-                print("Booking Successful! Found confirmation message.")
-                print("Confirmation text:", success_indicator.text)
+                success_msg = "Booking Successful! " + success_indicator.text
+                print(success_msg)
+                booking_status.append(success_msg)
             except:
                 # Check if there's an error message
                 try:
                     error_message = driver.find_element(By.XPATH, "//*[contains(@class, 'error-message')]")
-                    print("Booking Failed. Error message:", error_message.text)
+                    failure_msg = f"Booking Failed. Error: {error_message.text}"
+                    print(failure_msg)
+                    booking_status.append(failure_msg)
                 except:
-                    print("Couldn't find success or error message. Please verify manually.")
-                    print("Current URL:", driver.current_url)
-                    print("Page content:", driver.page_source[:500])
+                    unknown_msg = "Couldn't find success or error message. Please verify manually."
+                    print(unknown_msg)
+                    booking_status.append(unknown_msg)
                 
         except Exception as e:
-            print("5:00 PM slot not found or not available")
-            print(f"Error: {str(e)}")
-            if driver:
-                print("Current URL:", driver.current_url)
+            error_msg = f"5:00 PM slot not found or not available. Error: {str(e)}"
+            print(error_msg)
+            booking_status.append(error_msg)
                 
     except Exception as e:
-        print(f"\nError occurred: {str(e)}")
-        if driver:
-            print("Current URL:", driver.current_url)
-            print("Page source:", driver.page_source[:500])
+        error_msg = f"Error occurred: {str(e)}"
+        print(error_msg)
+        booking_status.append(error_msg)
     finally:
         if driver:
             driver.quit()
+        
+        # Create status output file for GitHub Actions
+        with open(os.environ.get('GITHUB_STEP_SUMMARY', 'booking_status.txt'), 'w') as f:
+            f.write('\n'.join(booking_status))
 
 if __name__ == "__main__":
     test_access()
