@@ -1,0 +1,53 @@
+name: Saturday Court Booking Job
+
+on:
+  schedule:
+    - cron: '50 9 * * 6'  # Runs at 9:50 AM every Saturday
+  workflow_dispatch:  # Allows manual triggering for testing
+
+permissions:
+  issues: write
+
+jobs:
+  book-courts:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium webdriver-manager
+        
+    - name: Run booking script
+      env:
+        BOOKING_USERNAME: ${{ secrets.BOOKING_USERNAME }}
+        PASSWORD: ${{ secrets.BOOKING_PASSWORD }}
+      run: python booking_script.py
+
+    - name: Create Issue on Completion
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const status = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+          const success = status.includes("Successfully booked both");
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: success ? '🎯 Court Booking Successful' : '❌ Court Booking Issues',
+            body: status,
+            labels: [success ? 'success' : 'failure']
+          });
