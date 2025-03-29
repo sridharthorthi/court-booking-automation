@@ -1,4 +1,4 @@
-name: Saturday Court Booking Job
+name: Saturday Court Booking
 
 on:
   schedule:
@@ -48,25 +48,22 @@ jobs:
           let title = '';
           if (status.includes("Successfully booked both")) {
             title = '🎯 Successfully Booked Both Tuesday and Thursday Slots';
-          } else if (status.includes("slots might not be opened yet")) {
+          } else if (status.includes("might not be opened yet")) {
             title = '⏳ Slots Not Yet Opened - Will Try Again Next Run';
           } else if (status.includes("Partial booking success")) {
             title = '⚠️ Partial Success - Only One Slot Booked';
-          } else if (status.includes("slot is fully booked")) {
+          } else if (status.includes("fully booked")) {
             title = '❌ Slots Already Full';
           } else {
             title = '❌ Booking Failed - Check Details';
           }
 
-          // Add timestamp to title
           const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
-          title += ` (${timestamp})`;
           
           github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: title,
-            body: `Running Time: ${timestamp}\n\nDetails:\n${status}`,
-            labels: [status.includes("Successfully booked both") ? 'success' : 'failure']
+            title: `${title} (${timestamp})`,
+            body: `Status Update from Court Booking Script\n\nRunning Time: ${timestamp}\n\n${status}`,
+            labels: [title.includes('Successfully') ? 'success' : 'failure']
           });
-
