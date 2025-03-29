@@ -65,6 +65,13 @@ def navigate_and_book(driver, day_name, clicks_needed, booking_status):
         slot.click()
         time.sleep(2)
         
+        # Check if already registered
+        if "is registered for this class" in driver.page_source:
+            success_msg = f"Already registered for {day_name} 5:00 PM slot"
+            print(success_msg)
+            booking_status.append(success_msg)
+            return True, success_msg
+        
         print("Looking for reserve button...")
         reserve_button = driver.find_element(By.XPATH, "//a[contains(@class, 'btn-primary') and contains(@id, 'reserve_')]")
         print("Clicking reserve button...")
