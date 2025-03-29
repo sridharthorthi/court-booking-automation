@@ -4,6 +4,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 def test_access():
@@ -17,12 +19,19 @@ def test_access():
     print(f"Username available: {'Yes' if username else 'No'}")
     print(f"Password available: {'Yes' if password else 'No'}")
 
-    # Setup Chrome
+    # Setup Chrome options for headless mode
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--headless')  # Run in headless mode
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--disable-gpu')
     
+    driver = None
     try:
-        driver = webdriver.Chrome(options=chrome_options)
+        # Initialize Chrome driver with service
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        
         print("\nBrowser initialized")
         
         # Try accessing the URL
@@ -38,7 +47,8 @@ def test_access():
     except Exception as e:
         print(f"\nError occurred: {str(e)}")
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
 
 if __name__ == "__main__":
     test_access()
