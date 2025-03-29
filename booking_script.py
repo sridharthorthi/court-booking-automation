@@ -173,9 +173,31 @@ def book_courts():
         # Go back to calendar and book Thursday
         if tuesday_success:
             print("Navigating back to calendar for Thursday booking...")
-            driver.get(url)  # Refresh to calendar
-            time.sleep(2)
-            thursday_success, thursday_msg = navigate_and_book(driver, "Thursday", thursday_clicks, booking_status)
+            try:
+                # Click on Calendar link
+                calendar_link = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'calendar.cfm') and contains(@class, 'block')]"))
+                )
+                calendar_link.click()
+                print("Clicked Calendar link")
+                time.sleep(2)
+
+                # Click Reserve button again
+                print("Looking for Reserve button...")
+                reserve_button = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'calendar.cfm')]"))
+                )
+                reserve_button.click()
+                print("Clicked Reserve button")
+                time.sleep(2)
+
+                # Now navigate and book Thursday
+                thursday_success, thursday_msg = navigate_and_book(driver, "Thursday", thursday_clicks, booking_status)
+            except Exception as e:
+                error_msg = f"Error navigating to Thursday booking: {str(e)}"
+                print(error_msg)
+                booking_status.append(error_msg)
+                thursday_success = False
             
             if tuesday_success and thursday_success:
                 final_msg = "Successfully booked both Tuesday and Thursday slots!"
