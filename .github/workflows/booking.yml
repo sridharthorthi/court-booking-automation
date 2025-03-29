@@ -28,5 +28,33 @@ jobs:
       env:
         BOOKING_URL: ${{ secrets.BOOKING_URL }}
         BOOKING_USERNAME: ${{ secrets.BOOKING_USERNAME }}
-        PASSWORD: ${{ secrets.BOOKING_PASSWORD }}
+        PASSWORD: ${{ secrets.PASSWORD }}
       run: python test_access.py
+
+    - name: Create Issue on Failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const status = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'Court Booking Failed',
+            body: status
+          });
+          
+    - name: Create Issue on Success
+      if: success()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const status = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'Court Booking Successful',
+            body: status
+          });
