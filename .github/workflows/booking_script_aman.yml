@@ -1,0 +1,93 @@
+name: Saturday Court Booking
+
+on:
+  schedule:
+    - cron: '30 02 * * 6'  # 9:45 AM Saturday
+    - cron: '45 02 * * 6'  # 9:45 AM Saturday
+    - cron: '50 02 * * 6'  # 9:50 AM Saturday
+    - cron: '55 02 * * 6'  # 9:55 AM Saturday
+    - cron: '0 03 * * 6'  # 10:00 AM Saturday
+    - cron: '5 03 * * 6'  # 10:05 AM Saturday
+    - cron: '45 14 * * 6'  # 9:45 AM PST Saturday
+    - cron: '50 14 * * 6'  # 9:50 AM PST Saturday
+    - cron: '55 14 * * 6'  # 9:55 AM PST Saturday
+    - cron: '45 15 * * 6'  # 9:45 AM PST Saturday
+    - cron: '50 15 * * 6'  # 9:50 AM PST Saturday
+    - cron: '55 15 * * 6'  # 9:55 AM PST Saturday
+    - cron: '45 17 * * 6'  # 9:45 AM PST Saturday
+    - cron: '50 17 * * 6'  # 9:50 AM PST Saturday
+    - cron: '55 17 * * 6'  # 9:55 AM PST Saturday
+    - cron: '00 18 * * 6'  # 10:00 AM PST Saturday
+    - cron: '05 18 * * 6'  # 10:05 AM PST Saturday
+    - cron: '45 16 * * 6'  # 9:45 AM PDT Saturday
+    - cron: '50 16 * * 6'  # 9:50 AM PDT Saturday
+    - cron: '55 16 * * 6'  # 9:55 AM PDT Saturday
+    - cron: '00 16 * * 6'  # 9:55 AM PDT Saturday
+    - cron: '00 17 * * 6'  # 10:00 AM PDT Saturday
+    - cron: '05 17 * * 6'  # 10:05 AM PDT Saturday
+    - cron: '15 17 * * 6'  # 10:05 AM PDT Saturday
+    - cron: '20 18 * * 6'  # 10:05 AM PDT Saturday
+  workflow_dispatch:  # Allows manual triggering for testing
+
+permissions:
+  issues: write
+
+jobs:
+  book-courts:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium webdriver-manager
+        
+    - name: Run booking script
+      env:
+        BOOKING_USERNAME: ${{ secrets.BOOKING_USERNAME_AMAN }}
+        PASSWORD: ${{ secrets.BOOKING_PASSWORD_AMAN }}
+      run: python booking_script.py
+
+    - name: Create Issue on Completion
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const status = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+          
+          // Determine the title based on the status content
+          let title = '';
+          if (status.includes("Successfully booked both")) {
+            title = '🎯 Successfully Booked Both Tuesday and Thursday Slots';
+          } else if (status.includes("might not be opened yet")) {
+            title = '⏳ Slots Not Yet Opened - Will Try Again Next Run';
+          } else if (status.includes("Partial booking success")) {
+            title = '⚠️ Partial Success - Only One Slot Booked';
+          } else if (status.includes("fully booked")) {
+            title = '❌ Slots Already Full';
+          } else {
+            title = '❌ Booking Failed - Check Details';
+          }
+
+          const timestamp = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `${title} (${timestamp})`,
+            body: `Status Update from Court Booking Script\n\nRunning Time: ${timestamp}\n\n${status}`,
+            labels: [title.includes('Successfully') ? 'success' : 'failure']
+          });
