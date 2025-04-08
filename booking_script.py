@@ -8,9 +8,12 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 from datetime import datetime
+import pytz
 
 def get_clicks_needed(target_day):
-    current_day = datetime.now().strftime('%A')
+    # Use Pacific timezone
+    pacific_tz = pytz.timezone('America/Los_Angeles')  # This covers Seattle time (PST/PDT)
+    current_day = datetime.now(pacific_tz).strftime('%A')
     
     # Map days to numbers (0-6)
     days = {
@@ -20,6 +23,14 @@ def get_clicks_needed(target_day):
     
     current_num = days[current_day]
     target_num = days[target_day]
+    
+    # Print debug information
+    print(f"Debug - Current UTC time: {datetime.now()}")
+    print(f"Debug - Current Pacific time: {datetime.now(pacific_tz)}")
+    print(f"Debug - Current Pacific day name: {current_day}")
+    print(f"Debug - Current day number: {current_num}")
+    print(f"Debug - Target day: {target_day}")
+    print(f"Debug - Target day number: {target_num}")
     
     # Calculate clicks needed considering week wrap-around
     clicks = (target_num - current_num) % 7
