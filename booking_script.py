@@ -73,10 +73,33 @@ def navigate_and_book(driver, day_name, clicks_needed, booking_status):
             return True, success_msg
         
         print("Looking for reserve button...")
-        reserve_button = driver.find_element(By.XPATH, "//a[contains(@class, 'btn-primary') and contains(@id, 'reserve_')]")
-        print("Clicking reserve button...")
-        reserve_button.click()
-        time.sleep(3)
+        try:
+            # Print the page source to see what's actually there
+            print("Current page HTML:")
+            print(driver.page_source)
+            
+            # Use WebDriverWait instead of direct find_element
+            reserve_button = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//a[contains(@class, 'btn-primary') and contains(@id, 'reserve_')]"))
+            )
+            
+            # Print found button details
+            print("Found button details:")
+            print(f"Button class: {reserve_button.get_attribute('class')}")
+            print(f"Button id: {reserve_button.get_attribute('id')}")
+            print(f"Button text: {reserve_button.text}")
+            
+            print("Clicking reserve button...")
+            reserve_button.click()
+            time.sleep(3)
+        except Exception as e:
+            print(f"Detailed error while finding/clicking reserve button: {str(e)}")
+            # Try to find all buttons on the page to see what's available
+            all_buttons = driver.find_elements(By.TAG_NAME, "a")
+            print("All buttons found on page:")
+            for btn in all_buttons:
+                print(f"Button: class='{btn.get_attribute('class')}' id='{btn.get_attribute('id')}' text='{btn.text}'")
+            raise
         
         print("Checking booking status...")
         # Check for "fully booked" message
@@ -111,6 +134,11 @@ def book_courts():
     url = "https://northwestbadmintonacademy.sites.zenplanner.com/login.cfm"
     username = os.environ.get('BOOKING_USERNAME')
     password = os.environ.get('PASSWORD')
+
+    # Add username masking
+    masked_username = username[:3] + '*' * (len(username) - 3)
+    print(f"Using username: {masked_username}")
+    booking_status.append(f"Using username: {masked_username}")
 
     print("Checking credentials...")
     if not username or not password:
