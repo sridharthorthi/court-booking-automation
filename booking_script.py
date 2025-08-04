@@ -58,27 +58,27 @@ def navigate_and_book(driver, day_name, clicks_needed, booking_status):
             return False, error_msg
     
     time.sleep(2)
-    print(f"Navigation completed, looking for 5:00 PM slot...")
+    print(f"Navigation completed, looking for 6:00 PM slot...")
     
-    # Look for 5:00 PM slot
+    # Look for 6:00 PM slot
     try:
-        slot = driver.find_element(By.XPATH, "//div[contains(@class, 'calendar-custom-color-2bff00') and contains(text(), '5:00 PM')]")
-        print("Found 5:00 PM slot")
+        slot = driver.find_element(By.XPATH, "//div[contains(@class, 'calendar-custom-color-2bff00') and contains(text(), '6:00 PM')]")
+        print("Found 6:00 PM slot")
     except Exception as e:
-        error_msg = f"5:00 PM slot not found for {day_name} - Slots might not be opened yet. Error: {str(e)}"
+        error_msg = f"6:00 PM slot not found for {day_name} - Slots might not be opened yet. Error: {str(e)}"
         print(error_msg)
         booking_status.append(error_msg)
         return False, error_msg
         
     # Try booking the slot
     try:
-        print("Clicking on 5:00 PM slot...")
+        print("Clicking on 6:00 PM slot...")
         slot.click()
         time.sleep(2)
         
         # Check if already registered
         if "is registered for this class" in driver.page_source:
-            success_msg = f"Already registered for {day_name} 5:00 PM slot"
+            success_msg = f"Already registered for {day_name} 6:00 PM slot"
             print(success_msg)
             booking_status.append(success_msg)
             return True, success_msg
@@ -115,14 +115,14 @@ def navigate_and_book(driver, day_name, clicks_needed, booking_status):
         print("Checking booking status...")
         # Check for "fully booked" message
         if "All available spots for this class session are now taken" in driver.page_source:
-            error_msg = f"{day_name} 5:00 PM slot is fully booked"
+            error_msg = f"{day_name} 6:00 PM slot is fully booked"
             print(error_msg)
             booking_status.append(error_msg)
             return False, error_msg
             
         # Check for success message
         if "is registered for this class" in driver.page_source:
-            success_msg = f"Successfully booked {day_name} 5:00 PM slot"
+            success_msg = f"Successfully booked {day_name} 6:00 PM slot"
             print(success_msg)
             booking_status.append(success_msg)
             return True, success_msg
